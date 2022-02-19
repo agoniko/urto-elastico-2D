@@ -1,3 +1,4 @@
+import random
 from table import Table
 import numpy as np
 from ball import Ball
@@ -6,10 +7,24 @@ from time import sleep
 
 
 class Game:
-    def __init__(self):
-        self.table = Table(500,300)
-        self.b1 = Ball(x = 30, y = 30, vx=35, vy=-100, radius=20, mass=10)
-        self.b2 = Ball(x = 200, y = 200, vx=-500, vy=200, radius=20, mass=10)
+    def __init__(self,width,height):
+        self.table = Table(width,height)
+        r1 = random.randrange(20,50)
+        r2 = random.randrange(20,50)
+        self.b1 = Ball(
+            x = random.randrange(r1,width-r1),
+            y = random.randrange(r1,height-r2),
+            vx=random.randrange(-300,300),
+            vy=random.randrange(-300,300),
+            radius=r1
+        )
+        self.b2 = Ball(
+            x = random.randrange(r2,width-r1),
+            y = random.randrange(r2,height-r2),
+            vx=random.randrange(-300,300),
+            vy=random.randrange(-300,300),
+            radius=r2
+        )
         self.step = 0.01
 
 
