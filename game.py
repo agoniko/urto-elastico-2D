@@ -4,27 +4,44 @@ import numpy as np
 from ball import Ball
 import pygame
 from time import sleep
+import math
 
 
 class Game:
-    def __init__(self,width,height):
+    def __init__(self,width,height, rand):
         self.table = Table(width,height)
-        r1 = random.randrange(20,50)
-        r2 = random.randrange(20,50)
-        self.b1 = Ball(
-            x = random.randrange(r1,width-r1),
-            y = random.randrange(r1,height-r2),
-            vx=random.randrange(-300,300),
-            vy=random.randrange(-300,300),
-            radius=r1
-        )
-        self.b2 = Ball(
-            x = random.randrange(r2,width-r1),
-            y = random.randrange(r2,height-r2),
-            vx=random.randrange(-300,300),
-            vy=random.randrange(-300,300),
-            radius=r2
-        )
+        if rand:
+            r1 = random.randrange(20,50)
+            r2 = random.randrange(20,50)
+            self.b1 = Ball(
+                x = random.randrange(r1,width-r1),
+                y = random.randrange(r1,height-r2),
+                vx=random.randrange(-300,300),
+                vy=random.randrange(-300,300),
+                radius=r1
+            )
+            self.b2 = Ball(
+                x = random.randrange(r2,width-r1),
+                y = random.randrange(r2,height-r2),
+                vx=random.randrange(-300,300),
+                vy=random.randrange(-300,300),
+                radius=r2
+            )
+        else:
+            self.b1 = Ball(
+                x = 50,
+                y = 450,
+                vx= 200, #px/s
+                vy= -200, #px/s
+                radius=20
+            )
+            self.b2 = Ball(
+                x = 50,
+                y = 50,
+                vx= 200, #px/s
+                vy= 200, #px/s
+                radius=20
+            )
         self.step = 0.01
 
 
@@ -62,18 +79,39 @@ class Game:
         else:
             return False
 
+    def attrito(self,b1,b2):
+        c = 0.05 #devo rapportare il coefficiente a dt
+        g = 9.81 * 6250 #1m = 6250 px
+        at = -(c * g) * (self.step**2)
+        v1 = math.sqrt(b1.v[0]**2+b1.v[1]**2)
+        if v1 > 0:
+            i = b1.v[0] / v1 # versore velocità x
+            j = b1.v[1] / v1 # versore velocità y
+            b1.v[0] = b1.v[0] + (at * i)
+            b1.v[1] = b1.v[1] + (at * j)
+
+        v2 = math.sqrt(b2.v[0]**2+b2.v[1]**2)
+        if v2 > 0:
+            i = b2.v[0] / v2 # versore velocità x
+            j = b2.v[1] / v2 # versore velocità y
+            b2.v[0] = b2.v[0] + (at * i)
+            b2.v[1] = b2.v[1] + (at * j)
+
+
 
     def move(self,dt):
         self.check_urto_bordi(self.b1,self.table)
         self.check_urto_bordi(self.b2,self.table)
-
         if self.check_distance(self.b1,self.b2):
             #Urto tra palline
             self.urto(self.b1,self.b2)
         else:
+            self.attrito(self.b1, self.b2)
             self.b1.pos = np.add(self.b1.pos,np.inner(self.b1.v,dt))
             self.b2.pos = np.add(self.b2.pos,np.inner(self.b2.v,dt))
             print("b1: ",self.b1.pos, " b2:",self.b2.pos)
+
+        print(math.sqrt(self.b1.v[0]**2+self.b1.v[1]**2) + math.sqrt(self.b2.v[0]**2+self.b2.v[1]**2))
 
 
     def run(self):
