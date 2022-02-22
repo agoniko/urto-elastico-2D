@@ -1,5 +1,4 @@
 import random
-from table import Table
 import numpy as np
 from ball import Ball
 import pygame
@@ -9,7 +8,8 @@ import math
 
 class Game:
     def __init__(self,width,height, rand):
-        self.table = Table(width,height)
+        self.width = width
+        self.height = height
         if rand:
             r1 = random.randrange(20,50)
             r2 = random.randrange(20,50)
@@ -48,27 +48,28 @@ class Game:
 
     def urto(self,b1,b2):
         i = [(b2.pos[0]-b1.pos[0])/(b1.radius+b2.radius),(b2.pos[1]-b1.pos[1])/(b1.radius+b2.radius)]
+        i = [round(i[0],4),round(i[1],4)]
         i = i/np.linalg.norm(i) #Normalizzo il versore a causa del problema di sovrapposizione si cerchi a causa di dt
         j = [i[1],-i[0]]
         print("i: ",i," j: ",j, "norm")
 
         c = b1.v #copio b1.v per calcolo velocità v2
-        b1.v = np.add(np.inner(np.dot(b1.v,j),j),np.inner(np.dot(b2.v,i),i))
-        b2.v = np.add(np.inner(np.dot(b2.v,j),j),np.inner(np.dot(c,i),i))
+        b1.v = np.add(np.inner(np.inner(b1.v,j),j),np.inner(np.inner(b2.v,i),i))
+        b2.v = np.add(np.inner(np.inner(b2.v,j),j),np.inner(np.inner(c,i),i))
 
         while self.check_distance(b1,b2):
             b1.pos = np.add(b1.pos,np.inner(b1.v,self.step))
             b2.pos = np.add(b2.pos,np.inner(b2.v,self.step))
             print("b1: ",b1.pos, " b2:",b2.pos)
-            if self.check_urto_bordi(b1,self.table):
+            if self.check_urto_bordi(b1,self.width, self.height):
                 break
-            if self.check_urto_bordi(b2,self.table):
+            if self.check_urto_bordi(b2,self.width, self.height):
                 break
 
-    def check_urto_bordi(self,ball,table):
-        if ball.pos[0]-ball.radius<0 or ball.pos[0]+ball.radius>table.width:
+    def check_urto_bordi(self,ball,width,height):
+        if ball.pos[0]-ball.radius<0 or ball.pos[0]+ball.radius>width:
             ball.v[0] = -ball.v[0]
-        if ball.pos[1]-ball.radius<0 or ball.pos[1]+ball.radius>table.height:
+        if ball.pos[1]-ball.radius<0 or ball.pos[1]+ball.radius>height:
             ball.v[1] = -ball.v[1]
 
     def check_distance(self,b1,b2):
@@ -84,7 +85,7 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.9 #devo rapportare il coefficiente a dt
+        c = 0.05 #devo rapportare il coefficiente a dt
         g = 9.81 * 6250 #1m = 6250 px
         g = g*4 #se lo schermo è in 4k
         at = -(c * g) * (self.step**2)
@@ -109,8 +110,8 @@ class Game:
 
 
     def move(self,dt):
-        self.check_urto_bordi(self.b1,self.table)
-        self.check_urto_bordi(self.b2,self.table)
+        self.check_urto_bordi(self.b1,self.width,self.height)
+        self.check_urto_bordi(self.b2,self.width,self.height)
         if self.check_distance(self.b1,self.b2):
             #Urto tra palline
             self.urto(self.b1,self.b2)
@@ -120,18 +121,18 @@ class Game:
             self.b2.pos = np.add(self.b2.pos,np.inner(self.b2.v,dt))
             print("b1: ",self.b1.pos, " b2:",self.b2.pos)
 
-        print(math.sqrt(self.b1.v[0]**2+self.b1.v[1]**2) + math.sqrt(self.b2.v[0]**2+self.b2.v[1]**2))
+        print(np.linalg.norm(self.b1.v) + np.linalg.norm(self.b2.v))
 
 
     def run(self):
         pygame.init()
-        screen = pygame.display.set_mode([self.table.width, self.table.height])
+        screen = pygame.display.set_mode([self.width, self.height])
         running = True
         t = 0
         while t in range(0, 1000) and running:
             screen.fill("white")
-            pygame.draw.circle(screen, "black", (self.b1.pos[0], self.table.height - self.b1.pos[1]), self.b1.radius)
-            pygame.draw.circle(screen, "red", (self.b2.pos[0], self.table.height - self.b2.pos[1]), self.b2.radius)
+            pygame.draw.circle(screen, "black", (self.b1.pos[0], self.height - self.b1.pos[1]), self.b1.radius)
+            pygame.draw.circle(screen, "red", (self.b2.pos[0], self.height - self.b2.pos[1]), self.b2.radius)
             sleep(self.step)
             # Flip the display
             pygame.display.flip()
