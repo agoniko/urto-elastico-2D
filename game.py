@@ -28,30 +28,34 @@ class Game:
                 radius=r2
             )
         else:
+            radius = 20 * height / 500
             self.b1 = Ball(
-                x = 50,
-                y = 450,
-                vx= 200, #px/s
-                vy= -200, #px/s
-                radius=20
+                x = radius,
+                y = height - radius ,
+                vx= height / 1, #px/s
+                vy= -height / 2, #px/s
+                radius=radius
             )
             self.b2 = Ball(
-                x = 50,
-                y = 50,
-                vx= 200, #px/s
-                vy= 200, #px/s
-                radius=20
+                x = radius + 5,
+                y = radius,
+                vx= height / 1, #px/s
+                vy= height / 1, #px/s
+                radius=radius
             )
         self.step = 0.01
 
 
     def urto(self,b1,b2):
         i = [(b2.pos[0]-b1.pos[0])/(b1.radius+b2.radius),(b2.pos[1]-b1.pos[1])/(b1.radius+b2.radius)]
+        i = i/np.linalg.norm(i) #Normalizzo il versore a causa del problema di sovrapposizione si cerchi a causa di dt
         j = [i[1],-i[0]]
+        print("i: ",i," j: ",j, "norm")
 
         c = b1.v #copio b1.v per calcolo velocità v2
         b1.v = np.add(np.inner(np.dot(b1.v,j),j),np.inner(np.dot(b2.v,i),i))
         b2.v = np.add(np.inner(np.dot(b2.v,j),j),np.inner(np.dot(c,i),i))
+
         while self.check_distance(b1,b2):
             b1.pos = np.add(b1.pos,np.inner(b1.v,self.step))
             b2.pos = np.add(b2.pos,np.inner(b2.v,self.step))
@@ -80,8 +84,9 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.05 #devo rapportare il coefficiente a dt
+        c = 0.10 #devo rapportare il coefficiente a dt
         g = 9.81 * 6250 #1m = 6250 px
+        g = g*2 #se lo schermo è in 4k
         at = -(c * g) * (self.step**2)
         v1 = math.sqrt(b1.v[0]**2+b1.v[1]**2)
         if v1 > 0:
