@@ -84,23 +84,27 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.10 #devo rapportare il coefficiente a dt
+        c = 0.9 #devo rapportare il coefficiente a dt
         g = 9.81 * 6250 #1m = 6250 px
-        g = g*2 #se lo schermo è in 4k
+        g = g*4 #se lo schermo è in 4k
         at = -(c * g) * (self.step**2)
         v1 = math.sqrt(b1.v[0]**2+b1.v[1]**2)
         if v1 > 0:
-            i = b1.v[0] / v1 # versore velocità x
-            j = b1.v[1] / v1 # versore velocità y
-            b1.v[0] = b1.v[0] + (at * i)
-            b1.v[1] = b1.v[1] + (at * j)
+            i = [b1.v[0] / v1, b1.v[1] / v1] # versore velocità
+            b1.v = np.add(b1.v,np.inner(at,i)) #sommo V0 con at scomponendo tra asse x ed y con il versore i
+            v2 = math.sqrt(b1.v[0] ** 2 + b1.v[1] ** 2)
+            if v2 > v1:
+                b1.v = [0,0]
 
         v2 = math.sqrt(b2.v[0]**2+b2.v[1]**2)
         if v2 > 0:
-            i = b2.v[0] / v2 # versore velocità x
-            j = b2.v[1] / v2 # versore velocità y
-            b2.v[0] = b2.v[0] + (at * i)
-            b2.v[1] = b2.v[1] + (at * j)
+            i = [b2.v[0] / v2,b2.v[1] / v2] #versore velocità
+            b2.v = np.add(b2.v, np.inner(at,i)) #sommo V0 con at scomponendo tra asse x ed y con il versore i
+            v3 = math.sqrt(b2.v[0] ** 2 + b2.v[1] ** 2)
+            if v3 > v2:
+                b2.v = [0,0]
+
+
 
 
 
