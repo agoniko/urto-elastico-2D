@@ -47,8 +47,8 @@ class Game:
 
 
     def urto(self,b1,b2):
-        i = [(b2.pos[0]-b1.pos[0])/(b1.radius+b2.radius),(b2.pos[1]-b1.pos[1])/(b1.radius+b2.radius)]
-        i = [round(i[0],4),round(i[1],4)]
+        #i = [(b2.pos[0]-b1.pos[0])/(b1.radius+b2.radius),(b2.pos[1]-b1.pos[1])/(b1.radius+b2.radius)]
+        i = [(b2.pos[0]-b1.pos[0]),(b2.pos[1]-b1.pos[1])]
         i = i/np.linalg.norm(i) #Normalizzo il versore a causa del problema di sovrapposizione si cerchi a causa di dt
         j = [i[1],-i[0]]
         print("i: ",i," j: ",j, "norm")
@@ -85,10 +85,10 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.05 #devo rapportare il coefficiente a dt
-        g = 9.81 * 6250 #1m = 6250 px
+        c = 0.09
+        g = 9.81 * 6250 * (self.step) #1m = 6250 px e devo rapportare a dt
         g = g*4 #se lo schermo è in 4k
-        at = -(c * g) * (self.step**2)
+        at = -(c * g) * (self.step)
         v1 = math.sqrt(b1.v[0]**2+b1.v[1]**2)
         if v1 > 0:
             i = [b1.v[0] / v1, b1.v[1] / v1] # versore velocità
@@ -108,7 +108,6 @@ class Game:
 
 
 
-
     def move(self,dt):
         self.check_urto_bordi(self.b1,self.width,self.height)
         self.check_urto_bordi(self.b2,self.width,self.height)
@@ -116,10 +115,10 @@ class Game:
             #Urto tra palline
             self.urto(self.b1,self.b2)
         else:
-            self.attrito(self.b1, self.b2)
+            a = self.attrito(self.b1, self.b2)
             self.b1.pos = np.add(self.b1.pos,np.inner(self.b1.v,dt))
             self.b2.pos = np.add(self.b2.pos,np.inner(self.b2.v,dt))
-            print("b1: ",self.b1.pos, " b2:",self.b2.pos)
+            print("b1: ",self.b1.v, " b2:",self.b2.v)
 
         print(np.linalg.norm(self.b1.v) + np.linalg.norm(self.b2.v))
 
@@ -137,6 +136,5 @@ class Game:
             # Flip the display
             pygame.display.flip()
             self.move(self.step)
-
         pygame.quit()
 
