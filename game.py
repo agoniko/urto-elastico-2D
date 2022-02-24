@@ -16,15 +16,15 @@ class Game:
             self.b1 = Ball(
                 x = random.randrange(r1,width-r1),
                 y = random.randrange(r1,height-r2),
-                vx=random.randrange(-300,300),
-                vy=random.randrange(-300,300),
+                vx=random.randrange(-1000,1000),
+                vy=random.randrange(-1000,1000),
                 radius=r1
             )
             self.b2 = Ball(
                 x = random.randrange(r2,width-r1),
                 y = random.randrange(r2,height-r2),
-                vx=random.randrange(-300,300),
-                vy=random.randrange(-300,300),
+                vx=random.randrange(-1000,1000),
+                vy=random.randrange(-1000,1000),
                 radius=r2
             )
         else:
@@ -85,7 +85,7 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.09
+        c = 0.0
         g = 9.81 * 6250 * (self.step) #1m = 6250 px e devo rapportare a dt
         g = g*4 #se lo schermo è in 4k
         at = -(c * g) * (self.step)
@@ -120,7 +120,7 @@ class Game:
             self.b2.pos = np.add(self.b2.pos,np.inner(self.b2.v,dt))
             print("b1: ",self.b1.v, " b2:",self.b2.v)
 
-        print(np.linalg.norm(self.b1.v) + np.linalg.norm(self.b2.v))
+        print(np.linalg.norm([np.linalg.norm(self.b1.v), np.linalg.norm(self.b2.v)]))
 
 
     def run(self):
