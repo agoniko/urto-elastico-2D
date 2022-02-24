@@ -32,15 +32,15 @@ class Game:
             self.b1 = Ball(
                 x = radius,
                 y = height - radius ,
-                vx= height / 1, #px/s
-                vy= -height / 2, #px/s
+                vx= height / 2, #px/s
+                vy= -height / 4, #px/s
                 radius=radius
             )
             self.b2 = Ball(
                 x = radius + 5,
                 y = radius,
-                vx= height / 1, #px/s
-                vy= height / 1, #px/s
+                vx= height / 2, #px/s
+                vy= height / 2, #px/s
                 radius=radius
             )
         self.step = 0.01
@@ -85,9 +85,9 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.0
+        c = 0.05
         g = 9.81 * 6250 * (self.step) #1m = 6250 px e devo rapportare a dt
-        g = g*4 #se lo schermo è in 4k
+        #g = g*4 #se lo schermo è in 4k
         at = -(c * g) * (self.step)
         v1 = math.sqrt(b1.v[0]**2+b1.v[1]**2)
         if v1 > 0:
