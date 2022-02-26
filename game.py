@@ -45,7 +45,6 @@ class Game:
             )
         self.step = 0.01
 
-
     def urto(self,b1,b2):
         #i = [(b2.pos[0]-b1.pos[0])/(b1.radius+b2.radius),(b2.pos[1]-b1.pos[1])/(b1.radius+b2.radius)]
         i = [(b2.pos[0]-b1.pos[0]),(b2.pos[1]-b1.pos[1])]
@@ -56,6 +55,7 @@ class Game:
         c = b1.v #copio b1.v per calcolo velocità v2
         b1.v = np.add(np.inner(np.inner(b1.v,j),j),np.inner(np.inner(b2.v,i),i))
         b2.v = np.add(np.inner(np.inner(b2.v,j),j),np.inner(np.inner(c,i),i))
+
 
         while self.check_distance(b1,b2):
             b1.pos = np.add(b1.pos,np.inner(b1.v,self.step))
@@ -85,7 +85,7 @@ class Game:
             return False
 
     def attrito(self,b1,b2):
-        c = 0.05
+        c = 0.1
         g = 9.81 * 6250 * (self.step) #1m = 6250 px e devo rapportare a dt
         #g = g*4 #se lo schermo è in 4k
         at = -(c * g) * (self.step)
@@ -115,7 +115,7 @@ class Game:
             #Urto tra palline
             self.urto(self.b1,self.b2)
         else:
-            a = self.attrito(self.b1, self.b2)
+            self.attrito(self.b1, self.b2)
             self.b1.pos = np.add(self.b1.pos,np.inner(self.b1.v,dt))
             self.b2.pos = np.add(self.b2.pos,np.inner(self.b2.v,dt))
             print("b1: ",self.b1.v, " b2:",self.b2.v)
